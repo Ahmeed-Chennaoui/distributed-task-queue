@@ -1,0 +1,58 @@
+# Redis StatefulSet Configuration
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis-cache
+spec:
+  serviceName: redis-cache-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-cache
+  template:
+    metadata:
+      labels:
+        app: redis-cache
+    spec:
+      containers:
+        - name: redis
+          image: redis:7.2.4
+          ports:
+            - containerPort: 6379
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+          command: ["redis-server", "--appendonly", "yes"]
+      volumes:
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: redis-pvc
+
+---
+# PersistentVolumeClaim for Redis Data
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+# Service to Expose Redis within the Cluster
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-cache-service
+spec:
+  type: NodePort
+  ports:
+    - port: 6379
+      targetPort: 6379
+      nodePort: 30379
+      protocol: TCP
+  selector:
+    app: redis-cache

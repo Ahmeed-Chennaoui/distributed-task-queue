@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-consumer 
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: kafka-consumer
+  template:
+    metadata:
+      labels:
+        app: kafka-consumer
+    spec:
+      containers:
+      - name: consumer
+        image: redacted_information
+        env:  
+        - name: topic
+          value: "first_prime_larger_than_n,benchmark_primes"
+        - name: bootstrap_servers
+          value: "kafka:9092"
+        - name: group_id
+          value: "group-1"
+        - name: DB_URL
+          value: "cassandra"
+        - name: CACHE_URL
+          value: "redis-cache-service"
+        resources:
+            limits:
+              memory: "256Mi"
+            requests:
+              memory: "256Mi"

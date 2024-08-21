@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ui
+spec:
+  selector:
+    matchLabels:
+      app: ui
+  template:
+    metadata:
+      labels:
+        app: ui
+    spec:
+      containers:
+      - name: ui
+        image: redacted_information
+        env:  
+        - name: REACT_APP_API_URL
+          value: "api"
+        - name: REACT_APP_API_PORT
+          value: "8080"
+        ports:
+        - containerPort: 8080
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: ui-svc
+spec:
+  selector:
+    app: ui
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
